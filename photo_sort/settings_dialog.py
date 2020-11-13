@@ -24,7 +24,7 @@
 #
 
 # 3rd party
-import wx
+import wx  # nodep
 
 __all__ = ["SettingsDialog"]
 

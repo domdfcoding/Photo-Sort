@@ -30,8 +30,8 @@ from typing import Dict
 # 3rd party
 import exifread
 import exiftool
-import wx
-import wx.grid
+import wx  # nodep
+import wx.grid  # nodep
 
 __all__ = ["manage_cameras"]
 

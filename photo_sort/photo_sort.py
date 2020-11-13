@@ -7,7 +7,7 @@
 # Manual changes will be overwritten without warning!
 
 # 3rd party
-import wx
+import wx  # nodep
 
 # this package
 from photo_sort.launcher import Launcher

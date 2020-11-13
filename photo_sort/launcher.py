@@ -34,7 +34,7 @@ from typing import Dict, List
 # 3rd party
 import exifread
 import exiftool
-import wx
+import wx  # nodep
 from domdf_python_tools.paths import maybe_make
 from domdf_wxpython_tools.events import SimpleEvent
 from domdf_wxpython_tools.picker import dir_picker
