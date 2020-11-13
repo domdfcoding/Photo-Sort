@@ -23,22 +23,22 @@
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+# stdlib
+from typing import Optional
 
-class exif_error(object):
-	"""
-	Class for showing error messages on various exif-related errors
-	"""
-	
-	def __init__(self, message=None):
-		"""
-		Init exif_error class
+__all__ = ["ExifError"]
 
-		:param message: Custom message
-		:type message@ str
-		"""
-		
+
+class ExifError:
+	"""
+	Class for showing error messages on various exif-related errors.
+
+	:param message: Custom message
+	"""
+
+	def __init__(self, message: Optional[str] = None):
 		self.message = message
-	
+
 	def show(self, filename_string):
 		"""
 		Show the error message
@@ -46,46 +46,45 @@ class exif_error(object):
 		:param filename_string: Filename that caused the error
 		:type filename_string: str
 		"""
-		
+
 		print(f"\r'{filename_string}': {self.message}.\n")
-	
+
 	def parse_error(self):
 		"""
 		Error when EXIF data cannot be parsed
 		"""
-		
-		self.message = "Unable to parse EXIF data"
-		return self
-	
-	def open_error(self):
-		"""
-		Error when file cannot be opened
-		"""
-		
-		self.message = "Cannot open for reading"
-		return self
-	
-	def no_data(self):
-		"""
-		Error when no EXIF data is found
-		"""
-		
-		self.message = "No EXIF data found"
-		return self
-	
-	def copy_error(self):
-		"""
-		Error when the file cannot be copied
-		"""
-		
-		self.message = "Could not copy file"
-		return self
-	
-	def move_error(self):
-		"""
-		Error when the file cannot be moved
-		"""
-		
-		self.message = "Could not move file"
+
+		self.message = "Unable to parse EXIF data."
 		return self
 
+	def open_error(self):
+		"""
+		Error when a file cannot be opened.
+		"""
+
+		self.message = "Cannot open for reading."
+		return self
+
+	def no_data(self):
+		"""
+		Error when no EXIF data is found.
+		"""
+
+		self.message = "No EXIF data found"
+		return self
+
+	def copy_error(self):
+		"""
+		Error when the file cannot be copied.
+		"""
+
+		self.message = "Could not copy file."
+		return self
+
+	def move_error(self):
+		"""
+		Error when the file cannot be moved.
+		"""
+
+		self.message = "Could not move file."
+		return self

@@ -23,38 +23,35 @@
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
-
-import os
+# stdlib
 import json
+import os
 import shutil
-
 from datetime import timedelta
-from threading import Thread, Event
+from threading import Event, Thread
+from typing import Dict, List
 
-import wx
-
-from domdf_wxpython_tools.picker import dir_picker
-from domdf_wxpython_tools.events import SimpleEvent
-from domdf_python_tools.paths import maybe_make
-from domdf_wxpython_tools.timer_thread import Timer, timer_event
-
-
-#import EXIF
+# 3rd party
 import exifread
 import exiftool
+import wx
+from domdf_python_tools.paths import maybe_make
+from domdf_wxpython_tools.events import SimpleEvent
+from domdf_wxpython_tools.picker import dir_picker
+from domdf_wxpython_tools.timer_thread import Timer, timer_event
 
-from photo_sort.errors import exif_error
-from photo_sort.manage_cameras import manage_cameras
-from photo_sort.SettingsDialog import SettingsDialog
+# this package
+from photo_sort.errors import ExifError
+from photo_sort.manage_cameras import ManageCameras
+from photo_sort.settings_dialog import SettingsDialog
 
+__all__ = ["Worker", "Launcher"]
 
 # begin wxGlade: dependencies
 # end wxGlade
 
 # begin wxGlade: extracode
 # end wxGlade
-
-
 
 progress_event = SimpleEvent("Progress")
 sorting_done = SimpleEvent("Done")
@@ -65,37 +62,40 @@ mode_copy = 0
 mode_move = 1
 
 ########################################################################
+
+
 class Worker(Thread):
 	"""
 	Worker Thread for performing sorting.
-	Includes code from https://gist.github.com/samarthbhargav/5a515a399f7113137331
-	"""
-	
-	def __init__(self, parent, filelist, destination, mode=mode_copy, within_dirs=False, by_datetime=False, by_camera=False):
-		"""
-		Init Worker Thread Class
-		
-		:param parent: Class to send event updates to
-		:param filelist: List of file paths to sort
-		:type filelist: list
-		:param destination: Base directory to sort files into
-		:type destination: str
-		:param mode: Whether to copy or move the files, default Copy
-		:type mode: int
-		:param within_dirs: Whether to sort within directories, default False
-		:type within_dirs: bool
-		:param by_datetime: Whether to sort by date and time, default False (i.e. just by date)
-		:type by_datetime: bool
-		:param by_camera: Whether to sort by camera name, default False
-		:type by_camera: bool
-		"""
 
+	Includes code from https://gist.github.com/samarthbhargav/5a515a399f7113137331
+
+
+	:param parent: Class to send event updates to
+	:param filelist: List of file paths to sort
+	:param destination: Base directory to sort files into
+	:param mode: Whether to copy or move the files, default Copy
+	:param within_dirs: Whether to sort within directories, default False
+	:param by_datetime: Whether to sort by date and time, default False (i.e. just by date)
+	:param by_camera: Whether to sort by camera name, default False
+	"""
+
+	def __init__(
+			self,
+			parent: wx.Window,
+			filelist: List,
+			destination: str,
+			mode: int = mode_copy,
+			within_dirs: bool = False,
+			by_datetime: bool = False,
+			by_camera: bool = False
+			):
 		self._stopevent = Event()
 		Thread.__init__(self, name="WorkerThread")
 		self._parent = parent
 		global worker_thread_running
 		worker_thread_running = True
-		
+
 		print(f"Destination: {destination}")
 		if mode == mode_copy:
 			print("Mode: Copy")
@@ -104,38 +104,35 @@ class Worker(Thread):
 		else:
 			print("Unknown mode. Defaulting to 'Copy'")
 			mode = mode_copy
-		
+
 		print(f"Sort Within Directories: {within_dirs}")
 		print(f"Sort by Date and Time: {by_datetime}")
 		print(f"Sort by Camera: {by_camera}")
-		
+
 		self.destination = destination
-		self.mode=mode
-		self.within_dirs=within_dirs
+		self.mode = mode
+		self.within_dirs = within_dirs
 		self.by_datetime = by_datetime
 		self.by_camera = by_camera
 		self.filelist = filelist
 
 	@staticmethod
-	def parse_date(data):
+	def parse_date(data: Dict) -> str:
 		"""
 		Determine the date the photograph was taken from its EXIF data
-		
+
 		:param data: EXIF data to find the date from
-		:type data: dict
-		
-		:return: date
-		:rtype: str
 		"""
+
 		print(data)
 		try:
 			date = str(data["EXIF DateTimeOriginal"])[:10]
 			date = date.replace(':', '_').replace(' ', '_')
 		except KeyError:
-			
+
 			try:
 				print("attempt 2")
-				date = str(data['Image DateTime'])[:10]
+				date = str(data["Image DateTime"])[:10]
 				date = date.replace(':', '_').replace(' ', '_')
 			except KeyError:
 				try:
@@ -148,25 +145,20 @@ class Worker(Thread):
 						date = str(data["QuickTime:MediaCreateDate"])[:10]
 						date = date.replace(':', '_').replace(' ', '_')
 					except KeyError:
-						return exif_error().parse_error()
-				
+						return ExifError().parse_error()
+
 		return date
-	
-	def parse_camera(self, data):
+
+	def parse_camera(self, data: Dict) -> str:
 		"""
 		Determine the camera the photograph was taken with its EXIF data
-		
+
 		:param data: EXIF data to find the camera from
-		:type data: dict
-		
-		:return: camera
-		:rtype: str
 		"""
-		
+
 		camera = ''
-		
+
 		if self.by_camera:
-		
 			try:
 				raw_camera = str(data["Image Model"])
 				if raw_camera in self._parent.cameras:
@@ -206,62 +198,60 @@ class Worker(Thread):
 									camera = raw_camera
 							except KeyError:
 								pass
-		
+
 		return camera
-	
-	def run(self):
+
+	def run(self) -> None:
 		"""
 		Run Worker Thread
 		"""
-		
-		print('Working...')
 
-		
+		print("Working...")
+
 		for filepath in self.filelist:
-			
+
 			if self._stopevent.isSet():
 				return
-				
+
 			error = False
-			
+
 			path_length = 80
-			
+
 			if len(filepath) > path_length:
-				filename_string = '...' + filepath[-path_length:]
+				filename_string = "..." + filepath[-path_length:]
 			else:
-				filename_string = filepath + " "*(path_length-len(filepath))
-			
+				filename_string = filepath + ' ' * (path_length - len(filepath))
+
 			print(f'\r{filename_string}', end='')
-			
+
 			try:
-				file = open(filepath, 'rb')
+				file = open(filepath, "rb")
 			except:
-				error = exif_error().open_error()
+				error = ExifError().open_error()
 				error.show(filename_string)
 				continue
-				
+
 			# get the tags
 			data = exifread.process_file(file, details=False, debug=False)
-			
+
 			with exiftool.ExifTool() as et:
 				try:
 					metadata = et.get_metadata(filepath)
 				except json.decoder.JSONDecodeError:
 					metadata = None
-					
+
 				# using exiftool as a backup for video files
-			
+
 			if not data:
 				data = metadata
 				if not metadata:
-					error = exif_error().no_data()
+					error = ExifError().no_data()
 					error.show(filename_string)
-			
 			"""try:
 				date = str(data['Image DateTime'])[:10]
 				date = date.replace(':', '_').replace(' ', '_')
 			except KeyError:
-				
+
 				try:
 					print("attempt 2")
 					date = str(data["EXIF DateTimeOriginal"])[:10]
@@ -269,27 +259,27 @@ class Worker(Thread):
 				except KeyError:
 					print(f"\r'{filename_string}': Unable to parse EXIF data.\n")
 					error = True"""
-			
+
 			date = self.parse_date(data)
-			if isinstance(date, exif_error):
+			if isinstance(date, ExifError):
 				error = date
 				error.show(filename_string)
-			
+
 			if not error:
 
 				camera = self.parse_camera(data)
-				
+
 				destination_path = os.path.join(self.destination, date, camera)
 				maybe_make(destination_path, parents=True)
-				
+
 				#print(f"{date}  {camera} -> {destination_path}               ")
-				
+
 				destination_filename = os.path.split(filepath)[-1]
-				
+
 				# If file already exists, add a (number) to the end of the filename
 				if os.path.isfile(os.path.join(destination_path, destination_filename)):
 					# TODO: Use filecmp to see if files are identical
-					
+
 					num = 1
 					while True:
 						# Determine the fist available duplicate number
@@ -298,48 +288,46 @@ class Worker(Thread):
 							destination_filename = f"{base_filename} ({num}){extension}"
 							break
 						num += 1
-			
+
 				print(f"{date}  {camera} -> {os.path.join(destination_path, destination_filename)}               ")
-			
+
 				if self.mode == mode_copy:
 					try:
 						shutil.copy2(filepath, os.path.join(destination_path, destination_filename))
 					except:
 						print(f"\r'{filename_string}': Could not copy file.\n")
-						error = exif_error().copy_error()
+						error = ExifError().copy_error()
 						error.show(filename_string)
-				
+
 				elif self.mode == mode_move:
 					try:
 						shutil.move(filepath, os.path.join(destination_path, destination_filename))
 					except:
-						error = exif_error().move_error()
+						error = ExifError().move_error()
 						error.show(filename_string)
-			
-			file.close()
-			
-			if not self._stopevent.isSet():
-					#evt = ProgressEvent(myEVT_PROGRESS, -1)
-					#wx.PostEvent(self._parent, evt)
-				progress_event.trigger()
-				
 
-		
+			file.close()
+
+			if not self._stopevent.isSet():
+				# evt = ProgressEvent(myEVT_PROGRESS, -1)
+				# wx.PostEvent(self._parent, evt)
+				progress_event.trigger()
+
 		global worker_thread_running
 		worker_thread_running = False
-		
-		#evt = CompletionEvent(myEVT_DONE, -1)
-		#wx.PostEvent(self._parent, evt)
+
+		# evt = CompletionEvent(myEVT_DONE, -1)
+		# wx.PostEvent(self._parent, evt)
 		sorting_done.trigger()
-	
+
 	def join(self, timeout=None):
 		"""
 		Stop the thread and wait for it to end
-		
+
 		:param timeout:
 		:type:
 		"""
-		
+
 		self._stopevent.set()
 		Thread.join(self, timeout)
 
@@ -351,12 +339,8 @@ class Launcher(wx.Frame):
 	"""
 	Main window for Photo Sort
 	"""
-	
+
 	def __init__(self, *args, **kwds):
-		"""
-		Init Launcher class
-		"""
-		
 		# begin wxGlade: Launcher.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_FRAME_STYLE
 		wx.Frame.__init__(self, *args, **kwds)
@@ -373,11 +357,11 @@ class Launcher(wx.Frame):
 		self.progress_gauge = wx.Gauge(self.panel_1, wx.ID_ANY, 10)
 		self.cancel_btn = wx.Button(self, wx.ID_ANY, "Close")
 		self.sort_btn = wx.Button(self, wx.ID_ANY, "Sort")
-		
+
 		# Menu Bar
 		self.Launcher_menubar = wx.MenuBar()
 		wxglade_tmp_menu = wx.Menu()
-		item = wxglade_tmp_menu.Append(wx.ID_ANY, "Settings FIle", "")
+		item = wxglade_tmp_menu.Append(wx.ID_ANY, "Settings FIle", '')
 		self.Bind(wx.EVT_MENU, self.set_settings_file, id=item.GetId())
 		self.Launcher_menubar.Append(wxglade_tmp_menu, "FIle")
 		self.SetMenuBar(self.Launcher_menubar)
@@ -391,22 +375,18 @@ class Launcher(wx.Frame):
 		self.Bind(wx.EVT_BUTTON, self.on_cancel, self.cancel_btn)
 		self.Bind(wx.EVT_BUTTON, self.sort_handler, self.sort_btn)
 		# end wxGlade
-	
-		
+
 		# Bind Events
-		
 		progress_event.set_receiver(self)
 		progress_event.Bind(self.increase_file_count)
-		
+
 		sorting_done.set_receiver(self)
 		sorting_done.Bind(self.on_sort_done)
-		
+
 		self.Bind(wx.EVT_CLOSE, self.on_close)
-		
+
 		timer_event.set_receiver(self)
 		timer_event.Bind(self.update_time_elapsed)
-
-	
 
 	def __set_properties(self):
 		# begin wxGlade: Launcher.__set_properties
@@ -415,11 +395,11 @@ class Launcher(wx.Frame):
 		self.copy_radio_btn.SetValue(1)
 		self.camera_checkbox.SetValue(1)
 		# end wxGlade
-		
+
 		# Load camera and directories settings
-		
+
 		try:
-			with open("settings.json", "r") as f:
+			with open("settings.json") as f:
 				self.cameras, directories = json.load(f)
 				self.source_dir_picker.SetInitialValue(directories["Source"])
 				self.destination_dir_picker.SetInitialValue(directories["Destination"])
@@ -439,7 +419,9 @@ class Launcher(wx.Frame):
 		progress_text = wx.BoxSizer(wx.HORIZONTAL)
 		grid_sizer_1 = wx.FlexGridSizer(2, 2, 0, 0)
 		header_text = wx.StaticText(self.panel_1, wx.ID_ANY, "Sort Photographs By Date")
-		header_text.SetFont(wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Ubuntu"))
+		header_text.SetFont(
+				wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Ubuntu")
+				)
 		sizer_2.Add(header_text, 0, 0, 0)
 		static_line_1 = wx.StaticLine(self.panel_1, wx.ID_ANY)
 		sizer_2.Add(static_line_1, 0, wx.BOTTOM | wx.EXPAND | wx.TOP, 5)
@@ -448,7 +430,9 @@ class Launcher(wx.Frame):
 		grid_sizer_1.Add(self.source_dir_picker, 1, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND | wx.TOP, 3)
 		destination_label = wx.StaticText(self.panel_1, wx.ID_ANY, "Destination Directory: ")
 		grid_sizer_1.Add(destination_label, 0, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.TOP, 3)
-		grid_sizer_1.Add(self.destination_dir_picker, 1, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND | wx.TOP, 3)
+		grid_sizer_1.Add(
+				self.destination_dir_picker, 1, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND | wx.TOP, 3
+				)
 		sizer_2.Add(grid_sizer_1, 1, wx.EXPAND, 0)
 		static_line_2 = wx.StaticLine(self.panel_1, wx.ID_ANY)
 		sizer_2.Add(static_line_2, 0, wx.BOTTOM | wx.EXPAND | wx.TOP, 5)
@@ -482,77 +466,79 @@ class Launcher(wx.Frame):
 		self.SetSizer(sizer_1)
 		self.Layout()
 		# end wxGlade
-	
+
 		self.file_count_text = file_count_text
 		self.max_file_count = 0
 		self.current_file_count = 0
-		
+
 		self.time_elapsed_text = time_elapsed_text
 		self.elapsed_time = 0
-		
-	def set_max_file_count(self, value):
+
+	def set_max_file_count(self, value: int):
 		"""
 		Set total number of files to be sorted
-		
+
 		:param value: total number of files to be sorted
-		:type value: int
 		"""
-		
+
 		self.max_file_count = value
 		self.progress_gauge.SetRange(value)
 		self.update_file_count()
-	
+
 	def reset_file_count(self):
 		"""
 		Reset count of files that have been sorted to 0
 		"""
+
 		self.current_file_count = 0
 		self.update_file_count()
-		
-	def update_file_count(self, *args):
+
+	def update_file_count(self, *_):
 		"""
 		Update tracker to show new count of files that have been sorted
 		"""
-		
+
 		self.file_count_text.SetLabel(f"Processing {self.current_file_count} of {self.max_file_count}")
 		self.progress_gauge.SetValue(self.current_file_count)
-	
-	def increase_file_count(self, *args):
+
+	def increase_file_count(self, *_):
 		"""
 		Increase count of files that have been sorted
 		"""
-	
+
 		self.current_file_count += 1
 		self.update_file_count()
-	
-	def on_sort_done(self, *args):
+
+	def on_sort_done(self, *_):
 		"""
 		Tidy up after all files have been sorted
 		"""
-	
+
 		self.timer.join()
 		self.sort_btn.Enable()
 		self.cancel_btn.SetLabel("Close")
-		
-		self.file_count_text.SetLabel(f"Complete: {self.current_file_count} file{'s' if self.current_file_count > 1 else ''} sorted")
-		wx.MessageDialog(self, "Sort Complete", "Sort Complete",
-						 style=wx.OK | wx.ICON_INFORMATION).ShowModal()
-	
-	def update_time_elapsed(self, *args):
+
+		label = f"Complete: {self.current_file_count} file{'s' if self.current_file_count > 1 else ''} sorted"
+		self.file_count_text.SetLabel(label)
+		wx.MessageDialog(self, "Sort Complete", "Sort Complete", style=wx.OK | wx.ICON_INFORMATION).ShowModal()
+
+	def update_time_elapsed(self, *_):
 		"""
 		Increase elapsed time by one and update display
 		"""
-		
+
 		self.elapsed_time += 1
 		self.time_elapsed_text.SetLabel(f"{timedelta(seconds=self.elapsed_time)}")
 		self.Layout()
-		
+
 	def do_manage_cameras(self, event):  # wxGlade: Launcher.<event_handler>
 		"""
-		Handler for `Manage Cameras` button.
-		Opens `Manage Cameras` dialog
+		Handler for ``Manage Cameras`` button.
+
+		Opens ``Manage Cameras`` dialog.
 		"""
-		with manage_cameras(self, data=self.cameras) as dlg:
+
+		with ManageCameras(self, data=self.cameras) as dlg:
 			res = dlg.ShowModal()
 			if res == wx.ID_APPLY:
 				self.cameras = dlg.get_data()
@@ -561,47 +547,45 @@ class Launcher(wx.Frame):
 		event.Skip()
 
 	def within_dirs_ignore(self, event):
-		pass
 		event.Skip()
-	
+
 	def within_dirs_folder_done(self, event):
 		"""
 		Tidy up after all files have been sorted with `within_dirs=True`
 		"""
+
 		event.Skip()
-		
+
 		self.increase_file_count()
-		
+
 		if self.current_file_count == self.max_file_count:
 			self.timer.join()
 			self.sort_btn.Enable()
 			self.cancel_btn.SetLabel("Close")
-			
-			self.file_count_text.SetLabel(
-				f"Complete: {self.current_file_count} file{'s' if self.current_file_count > 1 else ''} sorted")
-			wx.MessageDialog(self, "Sort Complete", "Sort Complete",
-							 style=wx.OK | wx.ICON_INFORMATION).ShowModal()
-		
+
+			label = f"Complete: {self.current_file_count} file{'s' if self.current_file_count > 1 else ''} sorted"
+			self.file_count_text.SetLabel(label)
+			wx.MessageDialog(self, "Sort Complete", "Sort Complete", style=wx.OK | wx.ICON_INFORMATION).ShowModal()
+
 			# Reset event bindings
 			progress_event.Unbind()
 			sorting_done.Unbind()
-			
+
 			progress_event.Bind(self.increase_file_count)
 			sorting_done.Bind(self.increase_file_count)
-		
-	
+
 	def sort_within_dirs(self):
 		"""
 		Run sort within folders
 		"""
-		
+
 		# Rebind events
 		progress_event.Unbind()
 		sorting_done.Unbind()
-		
+
 		progress_event.Bind(self.within_dirs_ignore)
 		sorting_done.Bind(self.within_dirs_folder_done)
-		
+
 		main_source = self.source_dir_picker.get_value()
 		print(f"Main Source: {main_source}")
 
@@ -610,54 +594,52 @@ class Launcher(wx.Frame):
 		# TODO: Handle no folders
 		print(subdir_list)
 
-		
 		if len(subdir_list) >= 1:
 			for subdir in subdir_list:
 				print(f"Subdir: {subdir}")
-			
+
 				print(os.path.split(subdir)[-1])
-				
+
 				onlyfiles = []
-				
+
 				print(f"Source: {subdir}")
-				
+
 				for root, dirs, files in os.walk(subdir):
 					for filename in os.listdir(root):
 						if os.path.isfile(os.path.join(root, filename)):
 							onlyfiles.append(os.path.join(root, filename))
-				
+
 				print(onlyfiles)
-				
+
 				if self.copy_radio_btn.GetValue() and not self.move_radio_btn.GetValue():
 					mode = mode_copy
 				elif self.move_radio_btn.GetValue() and not self.move_radio_btn.GetValue():
 					mode = mode_move
 				else:
 					mode = mode_copy
-				
+
 				self.elapsed_time = 0
-				
-				self.worker = Worker(self,
-									 filelist=onlyfiles,
-									 destination=subdir,
-									 mode=mode_move, # TODO: Disable copy checkbox if within dirs selected
-									 within_dirs=True,
-									 by_datetime=self.datetime_checkbox.GetValue(),
-									 by_camera=self.camera_checkbox.GetValue(),
-									 )
+
+				self.worker = Worker(
+						self,
+						filelist=onlyfiles,
+						destination=subdir,
+						mode=mode,  # TODO: Disable copy checkbox if within dirs selected
+						within_dirs=True,
+						by_datetime=self.datetime_checkbox.GetValue(),
+						by_camera=self.camera_checkbox.GetValue(),
+						)
 				self.timer = Timer(self)
 				self.timer.start()
 				self.worker.start()
-				
-				
-	
-	def sort(self):  # wxGlade: Launcher.<event_handler>
+
+	def sort(self) -> None:  # wxGlade: Launcher.<event_handler>
 		"""
-		Run sort
+		Run sort.
 		"""
-		
+
 		onlyfiles = []
-		
+
 		source = self.source_dir_picker.get_value()
 		print(f"Source: {source}")
 
@@ -665,132 +647,133 @@ class Launcher(wx.Frame):
 			for filename in os.listdir(root):
 				if os.path.isfile(os.path.join(root, filename)):
 					onlyfiles.append(os.path.join(root, filename))
-		
+
 		print(onlyfiles)
 		self.reset_file_count()
 		self.set_max_file_count(len(onlyfiles))
 		# TODO: Handle no files
 
-		
 		if self.copy_radio_btn.GetValue() and not self.move_radio_btn.GetValue():
 			mode = mode_copy
 		elif self.move_radio_btn.GetValue() and not self.copy_radio_btn.GetValue():
 			mode = mode_move
 		else:
 			mode = mode_copy
-		
+
 		self.elapsed_time = 0
-		
-		self.worker = Worker(self,
-							 filelist=onlyfiles,
-							 destination=self.destination_dir_picker.get_value(),
-							 mode=mode,
-							 within_dirs=self.within_dirs_checkbox.GetValue(),
-							 by_datetime=self.datetime_checkbox.GetValue(),
-							 by_camera=self.camera_checkbox.GetValue(),
-							 )
+
+		self.worker = Worker(
+				self,
+				filelist=onlyfiles,
+				destination=self.destination_dir_picker.get_value(),
+				mode=mode,
+				within_dirs=self.within_dirs_checkbox.GetValue(),
+				by_datetime=self.datetime_checkbox.GetValue(),
+				by_camera=self.camera_checkbox.GetValue(),
+				)
 		self.timer = Timer(self)
 		self.timer.start()
 		self.worker.start()
-		
-	
-	def sort_handler(self, event):  # wxGlade: Launcher.<event_handler>
+
+	def sort_handler(self, event) -> None:  # wxGlade: Launcher.<event_handler>
 		"""
 		Handler for sort button do determine which function
 		to call depending on options selected by the user
 		"""
-		
+
 		self.sort_btn.Disable()
 		self.cancel_btn.SetLabel("Cancel")
-		
+
 		if self.within_dirs_checkbox.GetValue():
 			self.sort_within_dirs()
 		else:
 			self.sort()
-		
+
 		event.Skip()
-	
-	def stop_threads(self):
+
+	def stop_threads(self) -> None:
 		"""
-		Stop worker and timer threads
+		Stop worker and timer threads.
 		"""
-		
+
 		try:
 			self.worker.join()
 		except AttributeError:
 			pass
-		
+
 		try:
 			self.timer.join()
 		except AttributeError:
 			pass
-	
-	def on_close(self, event): # wxGlade: Launcher.<event_handler>
+
+	def on_close(self, event) -> None:  # wxGlade: Launcher.<event_handler>
 		"""
-		Handler for closing the window
+		Handler for closing the window.
 		"""
-		
+
 		if worker_thread_running:
-			res = wx.MessageDialog(self, "Are you sure you want to cancel?", "Cancel?",
-											 style=wx.YES_NO|wx.ICON_QUESTION).ShowModal()
+			res = wx.MessageDialog(
+					self,
+					"Are you sure you want to cancel?",
+					"Cancel?",
+					style=wx.YES_NO | wx.ICON_QUESTION,
+					).ShowModal()
 			if res == wx.ID_NO:
 				if event.CanVeto:
 					event.Veto()
 					return
 			self.stop_threads()
-		
-		
+
 		# Save camera and directory settings
-		
-		with open("settings.json", "w") as f:
+		with open("settings.json", 'w') as f:
 			json.dump([
-						self.cameras,
-						{
+					self.cameras,
+					{
 							"Source": self.source_dir_picker.GetValue(),
 							"Destination": self.destination_dir_picker.GetValue(),
-					 	}],f)
-					
+							}
+					],
+						f)
+
 		self.Destroy()  # you may also do:  event.Skip()
 		# since the default event handler does call Destroy(), too
-		
-		
+
 	def on_cancel(self, *args):  # wxGlade: Launcher.<event_handler>
 		"""
 		Handler for cancel/close button, depending on context
 		"""
-		
+
 		if worker_thread_running:
-			res = wx.MessageDialog(self, "Are you sure you want to cancel?", "Cancel?",
-								   style=wx.YES_NO | wx.ICON_QUESTION).ShowModal()
+			res = wx.MessageDialog(
+					self, "Are you sure you want to cancel?", "Cancel?", style=wx.YES_NO | wx.ICON_QUESTION
+					).ShowModal()
 			if res == wx.ID_YES:
 				self.stop_threads()
 				self.timer.join()
 				self.sort_btn.Enable()
 				self.cancel_btn.SetLabel("Close")
-		
+
 		if self.cancel_btn.Label == "Close":
 			self.Close()
-		
 
-	def within_dirs_clicked(self, event):  # wxGlade: Launcher.<event_handler>
+	def within_dirs_clicked(self, event) -> None:  # wxGlade: Launcher.<event_handler>
 		"""
-		Handler for ``within_dirs`` checkbox being toggled
+		Handler for ``within_dirs`` checkbox being toggled.
 		"""
-		
+
 		self.destination_dir_picker.Enable(not self.destination_dir_picker.IsEnabled())
 		self.move_radio_btn.SetValue(1)
 		self.move_radio_btn.Enable(not self.move_radio_btn.IsEnabled())
 		self.copy_radio_btn.SetValue(0)
 		self.copy_radio_btn.Enable(not self.copy_radio_btn.IsEnabled())
-		
+
 		event.Skip()
-		
-		
-	def set_settings_file(self, event):  # wxGlade: Launcher.<event_handler>
+
+	def set_settings_file(self, event) -> None:  # wxGlade: Launcher.<event_handler>
 		dlg = SettingsDialog(self, id=wx.ID_ANY)
 		res = dlg.ShowModal()
 		print("Event handler 'set_settings_file' not implemented!")
 		event.Skip()
+
+
 # end of class Launcher
-
-

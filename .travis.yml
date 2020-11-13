@@ -26,7 +26,7 @@ script:
 
 stages:
   - test
-
+  - deploy_pypi
 
 
 jobs:
@@ -44,3 +44,17 @@ jobs:
     - stage: test
       dist: bionic
       python: 3.8
+
+    - stage: deploy_pypi
+      python: "3.6"
+      script: skip
+      deploy:
+        on:
+          tags: true
+          repo: domdfcoding/photo-sort
+        provider: pypi
+        username: "DomDF"
+        password:
+          secure:
+        distributions: "sdist bdist_wheel"
+        skip_existing: true

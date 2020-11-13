@@ -23,7 +23,11 @@
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+# 3rd party
 import wx
+
+__all__ = ["SettingsDialog"]
+
 # begin wxGlade: dependencies
 # end wxGlade
 
@@ -32,6 +36,7 @@ import wx
 
 
 class SettingsDialog(wx.Dialog):
+
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: SettingsDialog.__init__
 		kwds["style"] = kwds.get("style", 0) | wx.DEFAULT_DIALOG_STYLE
@@ -51,7 +56,6 @@ class SettingsDialog(wx.Dialog):
 		# begin wxGlade: SettingsDialog.__do_layout
 		self.Layout()
 		# end wxGlade
-	
-		
+
 
 # end of class SettingsDialog
