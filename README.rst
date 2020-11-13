@@ -19,7 +19,8 @@ photo-sort
 	  - |docs| |docs_check|
 	* - Tests
 	  - |travis| |actions_windows| |actions_macos| |codefactor| |pre_commit_ci|
-
+	* - PyPI
+	  - |pypi-version| |supported-versions| |supported-implementations| |wheel|
 	* - Activity
 	  - |commits-latest| |commits-since| |maintained|
 	* - Other
@@ -100,8 +101,20 @@ photo-sort
 Installation
 --------------
 
-
-
-
 .. start installation
+
+``photo-sort`` can be installed from PyPI.
+
+To install with ``pip``:
+
+.. code-block:: bash
+
+	$ python -m pip install photo-sort
+
 .. end installation
+
+You'll also need ``exiftool`` installed. On Debian/Ubuntu:
+
+.. code-block:: bash
+
+	$ sudo apt install exiftool
