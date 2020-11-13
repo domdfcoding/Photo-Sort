@@ -1,2 +1,4 @@
 domdf-wxpython-tools
 exifread
+domdf-wxpython-tools
+exifread

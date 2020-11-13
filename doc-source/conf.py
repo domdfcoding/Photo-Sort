@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 
-#### No need to change anything in this file ####
+# This file is managed by 'repo_helper'. Don't edit it directly.
 
+# stdlib
 import os
 import re
 import sys
@@ -10,36 +10,50 @@ import sys
 sys.path.append(os.path.abspath('.'))
 sys.path.append(os.path.abspath('..'))
 
-from sphinx.locale import _
+# this package
+from __pkginfo__ import __version__
 
-from package_name import __author__, __version__, __copyright__
-from __pkginfo__ import github_username, modname
+github_username = "domdfcoding"
+github_repository = "photo-sort"
+github_url = f"https://github.com/{github_username}/{github_repository}"
 
-github_url = f"https://github.com/{github_username}/{modname}"
-
-rst_prolog = f""".. |pkgname| replace:: {modname}
-.. |pkgname2| replace:: ``{modname}``
+rst_prolog = f""".. |pkgname| replace:: photo-sort
+.. |pkgname2| replace:: ``photo-sort``
 .. |browse_github| replace:: `Browse the GitHub Repository <{github_url}>`__
-.. |ghurl| replace:: {github_url}
 """
 
-project = modname
-slug = re.sub(r'\W+', '-', modname.lower())
-version = __version__
-release = __version__
-author = __author__
-copyright = __copyright__
+author = "Dominic Davis-Foster"
+project = "photo-sort"
+slug = re.sub(r'\W+', '-', project.lower())
+release = version = __version__
+copyright = "2014-2020 Dominic Davis-Foster"  # pylint: disable=redefined-builtin
 language = 'en'
+package_root = "photo_sort"
 
 extensions = [
-    'sphinx.ext.intersphinx',
-    'sphinx.ext.autodoc',
-    'sphinx.ext.mathjax',
-    'sphinx.ext.viewcode',
-    'sphinxcontrib.httpdomain',
-]
+		'sphinx_toolbox',
+		'sphinx_toolbox.more_autodoc',
+		'sphinx_toolbox.more_autosummary',
+		'sphinx_toolbox.tweaks.param_dash',
+		'sphinx.ext.intersphinx',
+		'sphinx.ext.mathjax',
+		'sphinxcontrib.httpdomain',
+		'sphinxcontrib.extras_require',
+		'sphinx.ext.todo',
+		'sphinxemoji.sphinxemoji',
+		'notfound.extension',
+		'sphinx_copybutton',
+		'sphinxcontrib.default_values',
+		'sphinxcontrib.toctree_plus',
+		'seed_intersphinx_mapping',
+		]
+
+sphinxemoji_style = 'twemoji'
+todo_include_todos = bool(os.environ.get("SHOW_TODOS", 0))
+gitstamp_fmt = "%d %b %Y"
 
 templates_path = ['_templates']
+html_static_path = ['_static']
 source_suffix = '.rst'
 exclude_patterns = []
 
@@ -47,66 +61,77 @@ master_doc = 'index'
 suppress_warnings = ['image.nonlocal_uri']
 pygments_style = 'default'
 
-intersphinx_mapping = { # Is this where those mystery links are specified?
-    'rtd': ('https://docs.readthedocs.io/en/latest/', None),
-    'sphinx': ('http://www.sphinx-doc.org/en/stable/', None),
-}
+intersphinx_mapping = {
+		'python': ('https://docs.python.org/3/', None),
+		'sphinx': ('https://www.sphinx-doc.org/en/stable/', None),
+		}
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'domdf_sphinx_theme'
 html_theme_options = {
-    'logo_only': False,  # True will show just the logo
-}
+		'logo_only': False,
+		}
 html_theme_path = ["../.."]
-#html_logo = "logo/pyms.png"
-html_show_sourcelink = False    # True will show link to source
+html_show_sourcelink = True  # True will show link to source
 
 html_context = {
-    # Github Settings
-    "display_github": True, # Integrate GitHub
-    "github_user": github_username, # Username
-    "github_repo": modname, # Repo name
-    "github_version": "master", # Version
-    "conf_py_path": "/", # Path in the checkout to the docs root
-}
+		'display_github': True,
+		'github_user': 'domdfcoding',
+		'github_repo': 'photo-sort',
+		'github_version': 'master',
+		'conf_py_path': '/doc-source/',
+		}
 
 htmlhelp_basename = slug
 
-latex_documents = [
-  ('index', '{0}.tex'.format(slug), modname, author, 'manual'),
-]
+latex_documents = [('index', f'{slug}.tex', project, author, 'manual')]
+man_pages = [('index', slug, project, [author], 1)]
+texinfo_documents = [('index', slug, project, author, slug, project, 'Miscellaneous')]
 
-man_pages = [
-    ('index', slug, modname, [author], 1)
-]
+toctree_plus_types = {
+		"class",
+		"function",
+		"method",
+		"data",
+		"enum",
+		"flag",
+		"confval",
+		"directive",
+		"role",
+		"confval",
+		"protocol",
+		"typeddict",
+		"namedtuple",
+		"exception",
+		}
 
-texinfo_documents = [
-  ('index', slug, modname, author, slug, modname, 'Miscellaneous'),
-]
+add_module_names = False
+hide_none_rtype = True
+all_typevars = True
+overloads_location = "bottom"
 
 
-# Extensions to theme docs
-def setup(app):
-    from sphinx.domains.python import PyField
-    from sphinx.util.docfields import Field
-
-    app.add_object_type(
-        'confval',
-        'confval',
-        objname='configuration value',
-        indextemplate='pair: %s; configuration value',
-        doc_field_types=[
-            PyField(
-                'type',
-                label=_('Type'),
-                has_arg=False,
-                names=('type',),
-                bodyrolename='class'
-            ),
-            Field(
-                'default',
-                label=_('Default'),
-                has_arg=False,
-                names=('default',),
-            ),
-        ]
-    )
+autodoc_exclude_members = [   # Exclude "standard" methods.
+		"__dict__",
+		"__class__",
+		"__dir__",
+		"__weakref__",
+		"__module__",
+		"__annotations__",
+		"__orig_bases__",
+		"__parameters__",
+		"__subclasshook__",
+		"__init_subclass__",
+		"__attrs_attrs__",
+		"__init__",
+		"__new__",
+		"__getnewargs__",
+		"__abstractmethods__",
+		"__hash__",
+		]
+autodoc_default_options = {
+		'members': None,  # Include all members (methods).
+		'special-members': None,
+		"autosummary": None,
+		"show-inheritance": None,
+		'exclude-members': ','.join(autodoc_exclude_members),
+		}

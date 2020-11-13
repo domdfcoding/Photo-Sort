@@ -1,7 +1,7 @@
 # Configuration for 'repo_helper' (https://github.com/domdfcoding/repo_helper)
 ---
 modname: 'photo-sort'
-copyright_years: '2020'
+copyright_years: '2014-2020'
 author: 'Dominic Davis-Foster'
 email: 'dominic@davis-foster.co.uk'
 username: 'domdfcoding'
@@ -18,3 +18,9 @@ python_versions:
  - 3.7
  - 3.8
  - 3.9
+
+classifiers:
+ - "Intended Audience :: End Users/Desktop"
+ - "Topic :: Multimedia :: Sound/Audio"
+ - "Topic :: Multimedia :: Video"
+ - "Topic :: Utilities"

@@ -1,115 +1,33 @@
-#  !/usr/bin/env python
-#   -*- coding: utf-8 -*-
+#  This file is managed by 'repo_helper'. Don't edit it directly.
+#  Copyright © 2020 Dominic Davis-Foster <dominic@davis-foster.co.uk>
 #
-#  filename.py
+#  This file is distributed under the same license terms as the program it came with.
+#  There will probably be a file called LICEN[S/C]E in the same directory as this file.
 #
-#  Copyright (c) 2019.  Dominic Davis-Foster <dominic@davis-foster.co.uk>
-#
-#  This program is free software; you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation; either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
+#  In any case, this program is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
-#  You should have received a copy of the GNU General Public License
-#  along with this program; if not, write to the Free Software
-#  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
-#  MA 02110-1301, USA.
-#
-#
-#  This program is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 3 of the License, or
-#  (at your option) any later version.
-#
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
-#
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
 # This script based on https://github.com/rocky/python-uncompyle6/blob/master/__pkginfo__.py
+#
 
-copyright   = """
-2019 Dominic Davis-Foster <dominic@davis-foster.co.uk>
+# stdlib
+import pathlib
+
+__all__ = [
+		"__copyright__",
+		"__version__",
+		"repo_root",
+		"install_requires",
+		"extras_require",
+		]
+
+__copyright__ = """
+2014-2020 Dominic Davis-Foster <dominic@davis-foster.co.uk>
 """
 
-VERSION = "0.1.0"
+__version__ = "0.0.0"
 
-modname            = "photo_sort"
-py_modules		   = None
-entry_points	   = None
-#py_modules         = [modname]
-#entry_points       = {
-#	'console_scripts': [
-#		'package_name=package_name:main',
-#	]}
-
-license            = 'GPL3'
-
-short_desc         = 'description goes here'
-
-author             = "Dominic Davis-Foster"
-author_email       = "dominic@davis-foster.co.uk"
-github_username	   = "domdfcoding"
-web                = github_url = f"https://github.com/{github_username}/Photo-Sort"
-
-install_requires   = []
-
-
-import os.path
-def get_srcdir():
-	filename = os.path.normcase(os.path.dirname(os.path.abspath(__file__)))
-	return os.path.realpath(filename)
-
-srcdir = get_srcdir()
-
-def read(*rnames):
-	return open(os.path.join(srcdir, *rnames)).read()
-
-# Get info from files; set: long_description
-long_description   = ( read("README.rst") + '\n' )
-
-classifiers = [
-	
-	"Development Status :: 3 - Alpha",
-	# "Development Status :: 4 - Beta",
-	# "Development Status :: 5 - Production/Stable",
-	# "Development Status :: 6 - Mature",
-	# "Development Status :: 7 - Inactive",
-	
-	# "Environment :: Win32 (MS Windows)",
-	# "Operating System :: Microsoft :: Windows",
-	# "Operating System :: Microsoft :: Windows :: Windows 10",
-	# "Operating System :: Microsoft :: Windows :: Windows 7",
-	# "Operating System :: Microsoft :: Windows :: Windows 8.1",
-	
-	# "Operating System :: POSIX :: Linux",
-	# "Topic :: Desktop Environment :: Gnome",
-	# "Environment :: X11 Applications :: GTK",
-	# "Environment :: X11 Applications :: KDE",
-	# "Environment :: X11 Applications :: Qt",
-	
-	"Operating System :: OS Independent",
-	
-	 "Intended Audience :: End Users/Desktop",
-	
-	"License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
-	
-	"Programming Language :: Python :: 3.6",
-	"Programming Language :: Python :: 3.7",
-	"Programming Language :: Python :: 3.8",
-	"Programming Language :: Python :: 3 :: Only",
-	"Programming Language :: Python :: Implementation :: CPython",
-	
-	 "Topic :: Multimedia :: Sound/Audio",
-	 "Topic :: Multimedia :: Video",
-	 "Topic :: Other/Nonlisted Topic",
-	 "Topic :: Utilities",
-]
+repo_root = pathlib.Path(__file__).parent
+install_requires = (repo_root / "requirements.txt").read_text(encoding="utf-8").split('\n')
+extras_require = {'all': []}

@@ -1,24 +1,21 @@
 #!/usr/bin/env python
-"""Setup script"""
+# This file is managed by 'repo_helper'. Don't edit it directly.
 
-from __pkginfo__ import \
-    author,           author_email,       install_requires,          \
-    license,          long_description,   classifiers,               \
-    entry_points,     modname,            py_modules,                \
-    short_desc,       VERSION,            web
+# stdlib
+import sys
 
-from setuptools import setup, find_packages
+# 3rd party
+from setuptools import setup
+
+sys.path.append('.')
+
+# this package
+from __pkginfo__ import *  # pylint: disable=wildcard-import
+
 setup(
-       author             = author,
-       author_email       = author_email,
-       classifiers        = classifiers,
-       description        = short_desc,
-       entry_points       = entry_points,
-       install_requires   = install_requires,
-       license            = license,
-       long_description   = long_description,
-       name               = modname,
-       packages           = find_packages(),
-       py_modules         = py_modules,
-       url                = web,
-       version            = VERSION)
+		description='A program for sorting photographs into folders.',
+		extras_require=extras_require,
+		install_requires=install_requires,
+		py_modules=[],
+		version=__version__,
+		)
