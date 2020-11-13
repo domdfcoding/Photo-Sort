@@ -1,2 +1,4 @@
 sphinxcontrib-httpdomain
 sphinx
+domdf-wxpython-tools
+exifread
