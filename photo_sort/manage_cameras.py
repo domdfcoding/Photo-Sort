@@ -35,7 +35,6 @@ import wx.grid
 
 __all__ = ["manage_cameras"]
 
-
 # begin wxGlade: dependencies
 # end wxGlade
 
