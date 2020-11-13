@@ -1,2 +1,6 @@
 include __pkginfo__.py
+include LICENSE
 include requirements.txt
+prune **/__pycache__
+recursive-include photo_sort *.pyi
+include photo_sort/py.typed
