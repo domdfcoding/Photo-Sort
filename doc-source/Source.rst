@@ -3,7 +3,7 @@ Downloading source code
 =========================
 
 The ``photo-sort`` source code is available on GitHub,
-and can be accessed from the following URL: https://github.com/domdfcoding/photo-sort"
+and can be accessed from the following URL: https://github.com/domdfcoding/photo-sort
 
 If you have ``git`` installed, you can clone the repository with the following command:
 
