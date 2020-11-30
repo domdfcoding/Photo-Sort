@@ -19,8 +19,7 @@ photo-sort
 	  - |docs| |docs_check|
 	* - Tests
 	  - |travis| |actions_windows| |actions_macos| |codefactor| |pre_commit_ci|
-	* - PyPI
-	  - |pypi-version| |supported-versions| |supported-implementations| |wheel|
+
 	* - Activity
 	  - |commits-latest| |commits-since| |maintained|
 	* - Other
@@ -103,13 +102,13 @@ Installation
 
 .. start installation
 
-``photo-sort`` can be installed from PyPI.
+``photo-sort`` can be installed from GitHub.
 
 To install with ``pip``:
 
 .. code-block:: bash
 
-	$ python -m pip install photo-sort
+	$ python -m pip install git+https://github.com/domdfcoding/photo-sort
 
 .. end installation
 

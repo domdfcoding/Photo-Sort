@@ -11,6 +11,7 @@ short_desc: 'A program for sorting photographs into folders.'
 
 enable_conda: false
 enable_tests: false
+on_pypi: false
 
 python_versions:
  - 3.6

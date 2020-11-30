@@ -18,8 +18,7 @@ photo-sort
 	  - |docs| |docs_check|
 	* - Tests
 	  - |travis| |actions_windows| |actions_macos| |codefactor| |pre_commit_ci|
-	* - PyPI
-	  - |pypi-version| |supported-versions| |supported-implementations| |wheel|
+
 	* - Activity
 	  - |commits-latest| |commits-since| |maintained|
 	* - Other
@@ -104,7 +103,6 @@ Installation
 .. start installation
 
 .. installation:: photo-sort
-	:pypi:
 	:github:
 
 .. end installation
