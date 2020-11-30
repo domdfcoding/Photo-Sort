@@ -32,13 +32,13 @@ from threading import Event, Thread
 from typing import Dict, List
 
 # 3rd party
-import exifread
-import exiftool
-import wx  # nodep
+import exifread  # type: ignore
+import exiftool  # type: ignore
+import wx  # type: ignore  # nodep
 from domdf_python_tools.paths import maybe_make
-from domdf_wxpython_tools.events import SimpleEvent
-from domdf_wxpython_tools.picker import dir_picker
-from domdf_wxpython_tools.timer_thread import Timer, timer_event
+from domdf_wxpython_tools.events import SimpleEvent  # type: ignore  # TODO
+from domdf_wxpython_tools.picker import dir_picker  # type: ignore
+from domdf_wxpython_tools.timer_thread import Timer, timer_event  # type: ignore
 
 # this package
 from photo_sort.errors import ExifError
@@ -210,7 +210,7 @@ class Worker(Thread):
 
 		for filepath in self.filelist:
 
-			if self._stopevent.isSet():
+			if self._stopevent.is_set():
 				return
 
 			error = False
@@ -226,9 +226,9 @@ class Worker(Thread):
 
 			try:
 				file = open(filepath, "rb")
-			except:
-				error = ExifError().open_error()
-				error.show(filename_string)
+			except BaseException:
+				ExifError().open_error().show(filename_string)
+				error = True
 				continue
 
 			# get the tags
@@ -245,8 +245,8 @@ class Worker(Thread):
 			if not data:
 				data = metadata
 				if not metadata:
-					error = ExifError().no_data()
-					error.show(filename_string)
+					error = True
+					ExifError().no_data().show(filename_string)
 			"""try:
 				date = str(data['Image DateTime'])[:10]
 				date = date.replace(':', '_').replace(' ', '_')
@@ -262,8 +262,8 @@ class Worker(Thread):
 
 			date = self.parse_date(data)
 			if isinstance(date, ExifError):
-				error = date
-				error.show(filename_string)
+				error = True
+				date.show(filename_string)
 
 			if not error:
 
@@ -294,21 +294,19 @@ class Worker(Thread):
 				if self.mode == mode_copy:
 					try:
 						shutil.copy2(filepath, os.path.join(destination_path, destination_filename))
-					except:
+					except BaseException:
 						print(f"\r'{filename_string}': Could not copy file.\n")
-						error = ExifError().copy_error()
-						error.show(filename_string)
+						ExifError().copy_error().show(filename_string)
 
 				elif self.mode == mode_move:
 					try:
 						shutil.move(filepath, os.path.join(destination_path, destination_filename))
-					except:
-						error = ExifError().move_error()
-						error.show(filename_string)
+					except BaseException:
+						ExifError().move_error().show(filename_string)
 
 			file.close()
 
-			if not self._stopevent.isSet():
+			if not self._stopevent.is_set():
 				# evt = ProgressEvent(myEVT_PROGRESS, -1)
 				# wx.PostEvent(self._parent, evt)
 				progress_event.trigger()

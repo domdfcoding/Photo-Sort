@@ -28,10 +28,10 @@ import json
 from typing import Dict
 
 # 3rd party
-import exifread
-import exiftool
-import wx  # nodep
-import wx.grid  # nodep
+import exifread  # type: ignore
+import exiftool  # type: ignore
+import wx  # type: ignore  # nodep
+import wx.grid  # type: ignore  # nodep
 
 __all__ = ["manage_cameras"]
 
