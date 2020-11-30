@@ -101,8 +101,16 @@ Installation
 --------------
 
 .. start installation
-.. end installation
 
+``photo-sort`` can be installed from GitHub.
+
+To install with ``pip``:
+
+.. code-block:: bash
+
+	$ python -m pip install git+https://github.com/domdfcoding/photo-sort
+
+.. end installation
 
 You'll also need ``exiftool`` installed. On Debian/Ubuntu:
 
