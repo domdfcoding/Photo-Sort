@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 #
 #  manage_cameras.py
+"""
+Provides a class to manage the mapping of camera IDs to human-readable names.
+"""
 #
-#  Copyright © 2014-2020 Dominic Davis-Foster <dominic@davis-foster.co.uk>
+#  Copyright © 2014-2021 Dominic Davis-Foster <dominic@davis-foster.co.uk>
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -44,6 +47,7 @@ __all__ = ["manage_cameras"]
 
 class ManageCameras(wx.Dialog):
 	"""
+	Class to manage the mapping of camera IDs to human-readable names.
 
 	:param parent:
 	:param id:
@@ -55,10 +59,12 @@ class ManageCameras(wx.Dialog):
 	:param data:
 	"""
 
+	# TODO: docstring for __init__'s arguments
+
 	def __init__(
 			self,
 			parent,
-			id=wx.ID_ANY,
+			id=wx.ID_ANY,  # noqa: A002
 			title='',
 			pos=wx.DefaultPosition,
 			size=wx.DefaultSize,
@@ -191,7 +197,7 @@ class ManageCameras(wx.Dialog):
 
 		with wx.FileDialog(
 				self,
-				"Open Image File",  #wildcard="JPEG files (*.jpg;*.jpeg;*.JPG)|*.jpg;*.jpeg;*.JPG",
+				"Open Image File",  # wildcard="JPEG files (*.jpg;*.jpeg;*.JPG)|*.jpg;*.jpeg;*.JPG",
 				style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
 				) as fileDialog:
 
@@ -211,8 +217,8 @@ class ManageCameras(wx.Dialog):
 					exif_camera = str(data["Image Model"])
 
 			except (OSError, KeyError):
-				#wx.MessageDialog(self, f"Cannot open file '{pathname}'.", "Error",
-				#				 style=wx.OK | wx.ICON_ERROR).ShowModal()
+				# wx.MessageDialog(self, f"Cannot open file '{pathname}'.", "Error",
+				# 				 style=wx.OK | wx.ICON_ERROR).ShowModal()
 				# Video File
 
 				with exiftool.ExifTool() as et:
