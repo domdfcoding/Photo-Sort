@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 #
 #  Launcher.py
+"""
+Provides the main window class, and its background worker thread.
+"""
 #
-#  Copyright © 2014-2020 Dominic Davis-Foster <dominic@davis-foster.co.uk>
+#  Copyright © 2014-2021 Dominic Davis-Foster <dominic@davis-foster.co.uk>
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -119,9 +122,9 @@ class Worker(Thread):
 	@staticmethod
 	def parse_date(data: Dict) -> str:
 		"""
-		Determine the date the photograph was taken from its EXIF data
+		Determine the date the photograph was taken from its EXIF data.
 
-		:param data: EXIF data to find the date from
+		:param data: EXIF data to find the date from.
 		"""
 
 		print(data)
@@ -151,9 +154,9 @@ class Worker(Thread):
 
 	def parse_camera(self, data: Dict) -> str:
 		"""
-		Determine the camera the photograph was taken with its EXIF data
+		Determine the camera the photograph was taken with its EXIF data.
 
-		:param data: EXIF data to find the camera from
+		:param data: EXIF data to find the camera from.
 		"""
 
 		camera = ''
@@ -203,7 +206,7 @@ class Worker(Thread):
 
 	def run(self) -> None:
 		"""
-		Run Worker Thread
+		Run the worker thread.
 		"""
 
 		print("Working...")
@@ -272,7 +275,7 @@ class Worker(Thread):
 				destination_path = os.path.join(self.destination, date, camera)
 				maybe_make(destination_path, parents=True)
 
-				#print(f"{date}  {camera} -> {destination_path}               ")
+				# print(f"{date}  {camera} -> {destination_path}               ")
 
 				destination_filename = os.path.split(filepath)[-1]
 
@@ -320,10 +323,9 @@ class Worker(Thread):
 
 	def join(self, timeout=None):
 		"""
-		Stop the thread and wait for it to end
+		Stop the thread and wait for it to end.
 
 		:param timeout:
-		:type:
 		"""
 
 		self._stopevent.set()
@@ -335,7 +337,7 @@ class Worker(Thread):
 
 class Launcher(wx.Frame):
 	"""
-	Main window for Photo Sort
+	Main window for Photo Sort.
 	"""
 
 	def __init__(self, *args, **kwds):
@@ -474,9 +476,9 @@ class Launcher(wx.Frame):
 
 	def set_max_file_count(self, value: int):
 		"""
-		Set total number of files to be sorted
+		Set the total number of files to be sorted.
 
-		:param value: total number of files to be sorted
+		:param value: total number of files to be sorted.
 		"""
 
 		self.max_file_count = value
@@ -485,7 +487,7 @@ class Launcher(wx.Frame):
 
 	def reset_file_count(self):
 		"""
-		Reset count of files that have been sorted to 0
+		Reset the count of files which have been sorted to ``0``.
 		"""
 
 		self.current_file_count = 0
@@ -493,7 +495,7 @@ class Launcher(wx.Frame):
 
 	def update_file_count(self, *_):
 		"""
-		Update tracker to show new count of files that have been sorted
+		Update the tracker to show the new count of files which have been sorted.
 		"""
 
 		self.file_count_text.SetLabel(f"Processing {self.current_file_count} of {self.max_file_count}")
@@ -501,7 +503,7 @@ class Launcher(wx.Frame):
 
 	def increase_file_count(self, *_):
 		"""
-		Increase count of files that have been sorted
+		Increase the count of files which have been sorted by ``1``.
 		"""
 
 		self.current_file_count += 1
@@ -509,7 +511,7 @@ class Launcher(wx.Frame):
 
 	def on_sort_done(self, *_):
 		"""
-		Tidy up after all files have been sorted
+		Tidy up after all files have been sorted.
 		"""
 
 		self.timer.join()
@@ -522,7 +524,7 @@ class Launcher(wx.Frame):
 
 	def update_time_elapsed(self, *_):
 		"""
-		Increase elapsed time by one and update display
+		Increase the elapsed time by one and update the displayed value.
 		"""
 
 		self.elapsed_time += 1
@@ -544,12 +546,12 @@ class Launcher(wx.Frame):
 
 		event.Skip()
 
-	def within_dirs_ignore(self, event):
+	def within_dirs_ignore(self, event):  # noqa: D102
 		event.Skip()
 
 	def within_dirs_folder_done(self, event):
 		"""
-		Tidy up after all files have been sorted with `within_dirs=True`
+		Tidy up after all files have been sorted with ``within_dirs=True``.
 		"""
 
 		event.Skip()
@@ -574,7 +576,7 @@ class Launcher(wx.Frame):
 
 	def sort_within_dirs(self):
 		"""
-		Run sort within folders
+		Sort photos within directories.
 		"""
 
 		# Rebind events
@@ -675,9 +677,9 @@ class Launcher(wx.Frame):
 
 	def sort_handler(self, event) -> None:  # wxGlade: Launcher.<event_handler>
 		"""
-		Handler for sort button do determine which function
-		to call depending on options selected by the user
-		"""
+		Handler for the "sort" button to determine which function
+		to call from the options selected by the user
+		"""  # noqa: D400
 
 		self.sort_btn.Disable()
 		self.cancel_btn.SetLabel("Cancel")
@@ -736,9 +738,9 @@ class Launcher(wx.Frame):
 		self.Destroy()  # you may also do:  event.Skip()
 		# since the default event handler does call Destroy(), too
 
-	def on_cancel(self, *args):  # wxGlade: Launcher.<event_handler>
+	def on_cancel(self, *events):  # wxGlade: Launcher.<event_handler>
 		"""
-		Handler for cancel/close button, depending on context
+		Handler for the cancel/close button, depending on context.
 		"""
 
 		if worker_thread_running:
@@ -756,7 +758,7 @@ class Launcher(wx.Frame):
 
 	def within_dirs_clicked(self, event) -> None:  # wxGlade: Launcher.<event_handler>
 		"""
-		Handler for ``within_dirs`` checkbox being toggled.
+		Handler for the ``within_dirs`` checkbox being toggled.
 		"""
 
 		self.destination_dir_picker.Enable(not self.destination_dir_picker.IsEnabled())
@@ -767,7 +769,7 @@ class Launcher(wx.Frame):
 
 		event.Skip()
 
-	def set_settings_file(self, event) -> None:  # wxGlade: Launcher.<event_handler>
+	def set_settings_file(self, event) -> None:  # wxGlade: Launcher.<event_handler>  # noqa: D102
 		dlg = SettingsDialog(self, id=wx.ID_ANY)
 		res = dlg.ShowModal()
 		print("Event handler 'set_settings_file' not implemented!")

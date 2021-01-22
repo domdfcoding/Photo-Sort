@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 #
 #  SettingsDialog.py
+"""
+Provides a dialog for configuring settings.
+"""
 #
-#  Copyright © 2014-2020 Dominic Davis-Foster <dominic@davis-foster.co.uk>
+#  Copyright © 2014-2021 Dominic Davis-Foster <dominic@davis-foster.co.uk>
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -36,6 +39,11 @@ __all__ = ["SettingsDialog"]
 
 
 class SettingsDialog(wx.Dialog):
+	"""
+	Dialog for configuring settings.
+	"""
+
+	# TODO: docstring for __init__'s arguments
 
 	def __init__(self, *args, **kwds):
 		# begin wxGlade: SettingsDialog.__init__

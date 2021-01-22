@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 #
 #  errors.py
+"""
+Error handlers.
+"""
 #
-#  Copyright © 2014-2020 Dominic Davis-Foster <dominic@davis-foster.co.uk>
+#  Copyright © 2014-2021 Dominic Davis-Foster <dominic@davis-foster.co.uk>
 #
 #  Permission is hereby granted, free of charge, to any person obtaining a copy
 #  of this software and associated documentation files (the "Software"), to deal
@@ -39,19 +42,18 @@ class ExifError:
 	def __init__(self, message: Optional[str] = None):
 		self.message = message
 
-	def show(self, filename_string):
+	def show(self, filename_string: str):
 		"""
-		Show the error message
+		Show the error message.
 
-		:param filename_string: Filename that caused the error
-		:type filename_string: str
+		:param filename_string: Filename that caused the error.
 		"""
 
 		print(f"\r'{filename_string}': {self.message}.\n")
 
 	def parse_error(self):
 		"""
-		Error when EXIF data cannot be parsed
+		Error when EXIF data cannot be parsed.
 		"""
 
 		self.message = "Unable to parse EXIF data."
