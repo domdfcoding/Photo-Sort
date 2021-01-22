@@ -64,7 +64,7 @@ class ManageCameras(wx.Dialog):
 	def __init__(
 			self,
 			parent,
-			id=wx.ID_ANY,  # noqa: A002
+			id=wx.ID_ANY,  # noqa: A002  # pylint: disable=redefined-builtin
 			title='',
 			pos=wx.DefaultPosition,
 			size=wx.DefaultSize,
