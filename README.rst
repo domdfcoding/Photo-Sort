@@ -54,8 +54,8 @@ photo-sort
 	:target: https://github.com/domdfcoding/photo-sort/actions?query=workflow%3A%22mypy%22
 	:alt: mypy status
 
-.. |requires| image:: https://dependency-dash.herokuapp.com/github/domdfcoding/photo-sort/badge.svg
-	:target: https://dependency-dash.herokuapp.com/github/domdfcoding/photo-sort/
+.. |requires| image:: https://dependency-dash.repo-helper.uk/github/domdfcoding/photo-sort/badge.svg
+	:target: https://dependency-dash.repo-helper.uk/github/domdfcoding/photo-sort/
 	:alt: Requirements Status
 
 .. |codefactor| image:: https://img.shields.io/codefactor/grade/github/domdfcoding/photo-sort?logo=codefactor
