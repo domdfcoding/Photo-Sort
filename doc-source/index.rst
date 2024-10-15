@@ -79,7 +79,7 @@ photo-sort
 		:last-commit:
 		:alt: GitHub last commit
 
-	.. |maintained| maintained-shield:: 2022
+	.. |maintained| maintained-shield:: 2024
 		:alt: Maintenance
 
 .. end shields
