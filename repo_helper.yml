@@ -24,3 +24,13 @@ classifiers:
  - "Topic :: Multimedia :: Sound/Audio"
  - "Topic :: Multimedia :: Video"
  - "Topic :: Utilities"
+
+
+github_ci_requirements:
+ # Prefery binary wheels for older versions over sdists for newer ones
+ Windows:
+  post:
+   - pip config set global.prefer-binary true
+ macOS:
+  post:
+   - pip config set global.prefer-binary true
