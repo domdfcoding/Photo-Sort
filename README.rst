@@ -77,7 +77,7 @@ photo-sort
 	:target: https://github.com/domdfcoding/photo-sort/commit/master
 	:alt: GitHub last commit
 
-.. |maintained| image:: https://img.shields.io/maintenance/yes/2022
+.. |maintained| image:: https://img.shields.io/maintenance/yes/2024
 	:alt: Maintenance
 
 .. end shields
