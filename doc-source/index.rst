@@ -119,6 +119,7 @@ You'll also need ``exiftool`` installed. On Debian/Ubuntu:
 
 	contributing
 	Source
+	license
 
 .. sidebar-links::
 	:caption: Links
