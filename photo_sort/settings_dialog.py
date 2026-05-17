@@ -38,7 +38,7 @@ __all__ = ["SettingsDialog"]
 # end wxGlade
 
 
-class SettingsDialog(wx.Dialog):
+class SettingsDialog(wx.Dialog):  # noqa: PRM002
 	"""
 	Dialog for configuring settings.
 	"""

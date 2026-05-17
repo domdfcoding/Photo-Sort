@@ -35,7 +35,7 @@ from threading import Event, Thread
 from typing import Dict, List
 
 # 3rd party
-import exifread  # type: ignore
+import exifread
 import exiftool  # type: ignore
 import wx  # type: ignore  # nodep
 from domdf_python_tools.paths import maybe_make
@@ -91,7 +91,7 @@ class Worker(Thread):
 			mode: int = mode_copy,
 			within_dirs: bool = False,
 			by_datetime: bool = False,
-			by_camera: bool = False
+			by_camera: bool = False,
 			):
 		self._stopevent = Event()
 		Thread.__init__(self, name="WorkerThread")
@@ -399,7 +399,7 @@ class Launcher(wx.Frame):
 		# Load camera and directories settings
 
 		try:
-			with open("settings.json") as f:
+			with open("settings.json", encoding="UTF-8") as f:
 				self.cameras, directories = json.load(f)
 				self.source_dir_picker.SetInitialValue(directories["Source"])
 				self.destination_dir_picker.SetInitialValue(directories["Destination"])
@@ -420,7 +420,7 @@ class Launcher(wx.Frame):
 		grid_sizer_1 = wx.FlexGridSizer(2, 2, 0, 0)
 		header_text = wx.StaticText(self.panel_1, wx.ID_ANY, "Sort Photographs By Date")
 		header_text.SetFont(
-				wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Ubuntu")
+				wx.Font(20, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL, 0, "Ubuntu"),
 				)
 		sizer_2.Add(header_text, 0, 0, 0)
 		static_line_1 = wx.StaticLine(self.panel_1, wx.ID_ANY)
@@ -431,7 +431,10 @@ class Launcher(wx.Frame):
 		destination_label = wx.StaticText(self.panel_1, wx.ID_ANY, "Destination Directory: ")
 		grid_sizer_1.Add(destination_label, 0, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.TOP, 3)
 		grid_sizer_1.Add(
-				self.destination_dir_picker, 1, wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND | wx.TOP, 3
+				self.destination_dir_picker,
+				1,
+				wx.ALIGN_CENTER_VERTICAL | wx.BOTTOM | wx.EXPAND | wx.TOP,
+				3,
 				)
 		sizer_2.Add(grid_sizer_1, 1, wx.EXPAND, 0)
 		static_line_2 = wx.StaticLine(self.panel_1, wx.ID_ANY)
@@ -725,15 +728,15 @@ class Launcher(wx.Frame):
 			self.stop_threads()
 
 		# Save camera and directory settings
-		with open("settings.json", 'w') as f:
-			json.dump([
-					self.cameras,
-					{
-							"Source": self.source_dir_picker.GetValue(),
-							"Destination": self.destination_dir_picker.GetValue(),
-							}
-					],
-						f)
+		with open("settings.json", 'w', encoding="UTF-8") as f:
+			settings = [
+							self.cameras,
+							{
+									"Source": self.source_dir_picker.GetValue(),
+									"Destination": self.destination_dir_picker.GetValue(),
+									},
+							]
+			json.dump(settings, f)
 
 		self.Destroy()  # you may also do:  event.Skip()
 		# since the default event handler does call Destroy(), too
@@ -745,7 +748,10 @@ class Launcher(wx.Frame):
 
 		if worker_thread_running:
 			res = wx.MessageDialog(
-					self, "Are you sure you want to cancel?", "Cancel?", style=wx.YES_NO | wx.ICON_QUESTION
+					self,
+					"Are you sure you want to cancel?",
+					"Cancel?",
+					style=wx.YES_NO | wx.ICON_QUESTION,
 					).ShowModal()
 			if res == wx.ID_YES:
 				self.stop_threads()

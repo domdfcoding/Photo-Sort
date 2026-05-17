@@ -31,7 +31,7 @@ import json
 from typing import Dict
 
 # 3rd party
-import exifread  # type: ignore
+import exifread
 import exiftool  # type: ignore
 import wx  # type: ignore  # nodep
 import wx.grid  # type: ignore  # nodep
@@ -70,7 +70,7 @@ class ManageCameras(wx.Dialog):
 			size=wx.DefaultSize,
 			style=wx.DEFAULT_DIALOG_STYLE,
 			name=wx.DialogNameStr,
-			data=None
+			data=None,
 			):
 
 		if not data:
@@ -198,7 +198,7 @@ class ManageCameras(wx.Dialog):
 		with wx.FileDialog(
 				self,
 				"Open Image File",  # wildcard="JPEG files (*.jpg;*.jpeg;*.JPG)|*.jpg;*.jpeg;*.JPG",
-				style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST
+				style=wx.FD_OPEN | wx.FD_FILE_MUST_EXIST,
 				) as fileDialog:
 
 			if fileDialog.ShowModal() == wx.ID_CANCEL:
@@ -226,7 +226,10 @@ class ManageCameras(wx.Dialog):
 						data = et.get_metadata(pathname)
 					except json.decoder.JSONDecodeError:
 						wx.MessageDialog(
-								self, f"Cannot open file '{pathname}'.", "Error", style=wx.OK | wx.ICON_ERROR
+								self,
+								f"Cannot open file '{pathname}'.",
+								"Error",
+								style=wx.OK | wx.ICON_ERROR,
 								).ShowModal()
 
 					# Video files, Canon
@@ -248,7 +251,7 @@ class ManageCameras(wx.Dialog):
 											self,
 											f"Cannot parse EXIF data from file '{pathname}'.",
 											"Error",
-											style=wx.OK | wx.ICON_ERROR
+											style=wx.OK | wx.ICON_ERROR,
 											).ShowModal()
 									event.Skip()
 									return
@@ -261,7 +264,7 @@ class ManageCameras(wx.Dialog):
 									self,
 									f"The camera '{exif_camera}' is already in the table.",
 									"Error",
-									style=wx.OK | wx.ICON_ERROR
+									style=wx.OK | wx.ICON_ERROR,
 									).ShowModal()
 							return
 				self.grid_1.SetCellValue(self.grid_1.GetNumberRows() - 1, 0, exif_camera)
