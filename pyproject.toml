@@ -7,7 +7,7 @@ name = "photo-sort"
 version = "0.0.0"
 description = "A program for sorting photographs into folders."
 readme = "README.rst"
-requires-python = ">=3.6.1"
+requires-python = ">=3.7"
 keywords = []
 classifiers = [
     "Intended Audience :: End Users/Desktop",
@@ -15,7 +15,6 @@ classifiers = [
     "Operating System :: OS Independent",
     "Programming Language :: Python",
     "Programming Language :: Python :: 3 :: Only",
-    "Programming Language :: Python :: 3.6",
     "Programming Language :: Python :: 3.7",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
@@ -51,7 +50,7 @@ base-classifiers = [
     "Topic :: Multimedia :: Video",
     "Topic :: Utilities",
 ]
-python-versions = [ "3.6", "3.7", "3.8", "3.9",]
+python-versions = [ "3.7", "3.8", "3.9",]
 python-implementations = [ "CPython",]
 platforms = [ "Windows", "macOS", "Linux",]
 license-key = "MIT"
