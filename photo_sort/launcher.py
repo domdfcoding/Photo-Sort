@@ -730,12 +730,12 @@ class Launcher(wx.Frame):
 		# Save camera and directory settings
 		with open("settings.json", 'w', encoding="UTF-8") as f:
 			settings = [
-							self.cameras,
-							{
-									"Source": self.source_dir_picker.GetValue(),
-									"Destination": self.destination_dir_picker.GetValue(),
-									},
-							]
+					self.cameras,
+					{
+							"Source": self.source_dir_picker.GetValue(),
+							"Destination": self.destination_dir_picker.GetValue(),
+							},
+					]
 			json.dump(settings, f)
 
 		self.Destroy()  # you may also do:  event.Skip()
